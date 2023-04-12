@@ -1,0 +1,41 @@
+{
+  "name": "website",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.12.4",
+    "axios": "^1.1.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-iframe": "^1.8.5",
+    "react-router-dom": "^6.4.3",
+    "react-scripts": "5.0.1",
+    "reactflow": "^11.2.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "REACT_APP_MODE=development react-scripts start",
+    "start:pre": "REACT_APP_MODE=production react-scripts start",
+    "build": "REACT_APP_MODE=production react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

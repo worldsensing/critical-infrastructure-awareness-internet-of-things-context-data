@@ -1,0 +1,11 @@
+.spacer {
+    flex: 1 1 100%;
+  }
+  
+  .title {
+    flex: 0 0 auto;
+  }
+  
+  .div-filter {
+    width: 250px;
+  }

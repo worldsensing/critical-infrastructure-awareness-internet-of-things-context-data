@@ -1,0 +1,178 @@
+version: '3.9'
+
+networks:
+  kong-net:
+    driver: bridge
+  kong-ext-net:
+    driver: bridge
+  backend-database-net:
+    driver: bridge
+
+volumes:
+  kong_data: { }
+
+services:
+  # Database
+  postgres:
+    container_name: postgres_backend
+    image: postgres:15.0-alpine
+    volumes:
+      - /var/opt/phd_postgres_backend/pg_data:/var/lib/postgresql/data/pgdata
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-database-net
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: unless-stopped
+
+  # Backend
+  backend_api:
+    container_name: backend
+    build:
+      context: ${PWD}/backend
+      dockerfile: Dockerfile
+    env_file:
+      - backend/ENV/api.env
+    depends_on:
+      - kong
+      - postgres
+    networks:
+      - kong-ext-net
+      - backend-database-net
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    container_name: frontend
+    build:
+      context: ${PWD}/frontend/website/nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - kong
+    networks:
+      - kong-ext-net
+    restart: unless-stopped
+
+  # Grafana
+  grafana:
+    container_name: grafana
+    build:
+      context: ${PWD}/frontend/grafana
+      dockerfile: Dockerfile
+    env_file:
+      - frontend/grafana/ENV/deploy.env
+    volumes:
+      - ./frontend/grafana/ENV/grafana.ini:/etc/grafana/grafana.ini
+    depends_on:
+      - postgres
+    networks:
+      - kong-ext-net
+      - backend-database-net
+    restart: unless-stopped
+
+  # API Gateway
+  kong:
+    container_name: api_gateway
+    image: kong:2.8.3-alpine
+    environment:
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-db
+      - KONG_PG_DATABASE=kong_db
+      - KONG_PG_USER=kong
+    depends_on:
+      - kong-db
+      - kong-migrations-up
+    ports:
+      - "8000:8000/tcp"
+      - "8001:8001/tcp"
+      - "8443:8443/tcp"
+      - "8444:8444/tcp"
+    networks:
+      - kong-net
+      - kong-ext-net
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+  kong-db:
+    container_name: api_gateway_db
+    image: postgres:9.5
+    environment:
+      - POSTGRES_DB=kong_db
+      - POSTGRES_USER=kong
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+    stdin_open: true
+    tty: true
+    networks:
+      - kong-net
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "kong" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: unless-stopped
+
+  kong-migrations:
+    container_name: api_gateway_migrations
+    image: kong:2.8.3-alpine
+    command: "kong migrations bootstrap"
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-db
+      - KONG_PG_DATABASE=kong_db
+      - KONG_PG_USER=kong
+    depends_on:
+      - kong-db
+    networks:
+      - kong-net
+    restart: on-failure
+
+  kong-migrations-up:
+    container_name: api_gateway_migrations_up
+    image: kong:2.8.3-alpine
+    command: "kong migrations up && kong migrations finish"
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-db
+      - KONG_PG_DATABASE=kong_db
+      - KONG_PG_USER=kong
+    depends_on:
+      - kong-db
+      - kong-migrations
+    networks:
+      - kong-net
+    restart: on-failure
+
+  # Database viewer
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:6.21
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=mvila@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=marcvila
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    ports:
+      - "5433:80"
+    networks:
+      - backend-database-net

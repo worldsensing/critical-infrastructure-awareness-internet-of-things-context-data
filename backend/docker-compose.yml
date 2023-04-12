@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  backend:
+    image: ${DOCKER_NAME}
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "5000:80"
+    env_file:
+      - ENV/local.env
+    networks:
+      - private
+
+  postgres:
+    image: postgres:15.0-alpine
+    restart: unless-stopped
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - /var/opt/phd_postgres_backend/pg_data:/var/lib/postgresql/data/pgdata
+    networks:
+      - private
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:6.21
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=mvila@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=marcvila
+    ports:
+      - "5050:80"
+    networks:
+      - private
+
+networks:
+  private:
+    driver: bridge

@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  integrations:
+    image: ${DOCKER_NAME}
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - ENV/local.env
+    networks:
+      - private
+
+networks:
+  private:
+    driver: bridge

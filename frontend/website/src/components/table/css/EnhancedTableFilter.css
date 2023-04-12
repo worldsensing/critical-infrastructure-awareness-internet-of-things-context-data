@@ -1,0 +1,33 @@
+.enhanced_filter_list_header {
+    height: 32.87px;
+    width: 159px;
+    background-color: var(--basic-table);
+    color: var(--basic-text);
+    font-size: 14px;
+    font-weight: var(--basic-font-weight);
+    line-height: 17px;
+    padding-left: 7px;
+    margin: 0 7px 0 7px;
+    border: 0;
+  }
+  
+  .enhanced_filter_list_modal {
+    box-sizing: border-box;
+    height: 30px;
+    width: 355.4px;
+    color: var(--basic-text);
+    padding-left: 7px;
+    font-size: 12px;
+    font-weight: var(--basic-font-weight);
+  }
+  
+  .enhanced_filter_list_modal_response {
+    box-sizing: border-box;
+    height: 30px;
+    width: 450px;
+    color: var(--basic-text);
+    padding-left: 7px;
+    font-size: 12px;
+    font-weight: var(--basic-font-weight);
+  }
+    

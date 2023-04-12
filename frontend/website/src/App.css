@@ -1,0 +1,31 @@
+.header {
+  background-color: #222;
+  height: auto;
+  display: block;
+  overflow: hidden;
+}
+
+.navbar-nav {
+  list-style: none;
+  display: block;
+  padding-left: 10px;
+}
+
+.nav-item {
+  float: left;
+  padding: 10px;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.app-content {
+  height: 93vh;
+}
