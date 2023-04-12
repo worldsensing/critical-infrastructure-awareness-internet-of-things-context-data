@@ -1,4 +1,4 @@
-# critical-infrastructures-awareness-internet-of-things-context-data
+# critical-infrastructure-awareness-internet-of-things-context-data
 
 Main repository for an article submitted.
 
