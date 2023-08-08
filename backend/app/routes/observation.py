@@ -6,6 +6,7 @@ from sqlmodel import Session
 from app.database import get_session
 from app.repository import observable_property as observable_property_repo, sensor as \
     sensor_repo, observation as observation_repo
+from app.schemas.actuation import Actuation
 from app.schemas.observation import Observation
 
 router = APIRouter(prefix="/observations")
@@ -45,6 +46,14 @@ def get_observation(observation_id: int,
         raise HTTPException(status_code=404, detail="Observation not found")
 
     return db_observation
+
+
+@router.get("/{observation_id}/actuations", response_model=List[Actuation])
+def get_observation_actuations(observation_id: int,
+                               session: Session = Depends(get_session)):
+    db_observation = get_observation(observation_id, session)
+
+    return db_observation.actuations
 
 
 @router.get("/sensor/{sensor_name}/", response_model=List[Observation])

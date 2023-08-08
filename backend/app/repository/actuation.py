@@ -23,7 +23,8 @@ def create_actuation(actuation: Actuation, session: Session):
         time_start=actuation.time_start,
         time_end=actuation.time_end,
         actuator_name=actuation.actuator_name,
-        actuatable_property_name=actuation.actuatable_property_name
+        actuatable_property_name=actuation.actuatable_property_name,
+        observations=actuation.observations
     )
     session.add(db_actuation)
     session.commit()
