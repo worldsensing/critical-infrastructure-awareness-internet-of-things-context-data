@@ -52,22 +52,26 @@ def create_thing(session: Session,
 
 
 def create_group(session: Session,
-                 name: str, gateways=None, things=None, location_name: str = None):
+                 name: str, gateways=None, things=None, groups: str = None,
+                 location_name: str = None):
     if gateways is None:
         gateways = []
     if things is None:
         things = []
 
-    group_1 = Group(name=name, gateways=gateways, things=things, location_name=location_name)
+    group_1 = Group(name=name, gateways=gateways, things=things, groups=groups,
+                    location_name=location_name)
     session.add(group_1)
     session.commit()
 
 
-@pytest.mark.parametrize("name, gateway_1_name, thing_1_name, thing_2_name, location_name",
-                         [["Group1", "Gateway1", "Thing1", "Thing2", "Location1"],
-                          ["Group2", None, None, None, None]])
+@pytest.mark.parametrize(
+    "name, gateway_1_name, thing_1_name, thing_2_name, group_2_name,location_name",
+    [["Group1", "Gateway1", "Thing1", "Thing2", "Group2", "Location1"],
+     ["Group2", None, None, None, None, None]])
 def test_get_group_exist(client: TestClient, session: Session,
                          name: str, gateway_1_name: str, thing_1_name: str, thing_2_name: str,
+                         group_2_name: str,
                          location_name: str):
     # PRE
     if location_name:
@@ -80,13 +84,26 @@ def test_get_group_exist(client: TestClient, session: Session,
         things.append(create_thing(session, name=thing_1_name))
     if thing_2_name:
         things.append(create_thing(session, name=thing_2_name))
-    create_group(session, name, gateways=gateways, things=things, location_name=location_name)
+    create_group(session, name, gateways=gateways, things=things, groups=group_2_name,
+                 location_name=location_name)
     # TEST
     response = client.get(f"{prefix}/{name}/")
     assert response.status_code == 200
     assert response.json()["id"] == 1
     assert response.json()["name"] == name
     assert response.json()["location_name"] == location_name
+
+    # Should be checked with custom call, however due to this being a Field and not Relationship it
+    # is done in this way
+    assert response.json()["groups"] == group_2_name
+
+    response = client.get(f"{prefix}/{name}/gateways")
+    assert response.status_code == 200
+    assert len(response.json()) == len(gateways)
+
+    response = client.get(f"{prefix}/{name}/things")
+    assert response.status_code == 200
+    assert len(response.json()) == len(things)
 
 
 @pytest.mark.parametrize("name",

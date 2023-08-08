@@ -20,6 +20,7 @@ def create_group(group: Group, session: Session):
         location_name=group.location_name,
         things=group.things,
         gateways=group.gateways,
+        groups=group.groups,
     )
     session.add(db_group)
     session.commit()

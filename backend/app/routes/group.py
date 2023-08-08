@@ -6,7 +6,9 @@ from sqlmodel import Session
 from app.database import get_session
 from app.repository import group as group_repo
 from app.repository import location as location_repo, thing as thing_repo, gateway as gateway_repo
+from app.schemas.gateway import Gateway
 from app.schemas.group import Group
+from app.schemas.thing import Thing
 
 router = APIRouter(prefix="/groups")
 
@@ -55,6 +57,22 @@ def get_group(group_name: str,
     if db_group is None:
         raise HTTPException(status_code=404, detail="Group not found")
     return db_group
+
+
+@router.get("/{group_name}/gateways", response_model=List[Gateway])
+def get_group_gateways(group_name: str,
+                       session: Session = Depends(get_session)):
+    db_group = get_group(group_name=group_name, session=session)
+
+    return db_group.gateways
+
+
+@router.get("/{group_name}/things", response_model=List[Thing])
+def get_group_gateways(group_name: str,
+                       session: Session = Depends(get_session)):
+    db_group = get_group(group_name=group_name, session=session)
+
+    return db_group.things
 
 
 @router.delete("/{group_name}/", response_model=Group)

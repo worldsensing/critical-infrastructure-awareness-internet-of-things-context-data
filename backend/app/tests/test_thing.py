@@ -102,10 +102,10 @@ def test_get_thing_exist(client: TestClient, session: Session,
     groups = []
     if group_1_name:
         groups.append(create_group(session, group_1_name))
-    gateway = []
+    gateways = []
     if gateway_1_name:
-        gateway.append(create_gateway(session, gateway_1_name))
-    create_thing(session, name, sensors=sensors, gateways=gateway, groups=groups,
+        gateways.append(create_gateway(session, gateway_1_name))
+    create_thing(session, name, sensors=sensors, gateways=gateways, groups=groups,
                  location_name=location_name)
     # TEST
     response = client.get(f"{prefix}/{name}/")
@@ -124,7 +124,7 @@ def test_get_thing_exist(client: TestClient, session: Session,
 
     response = client.get(f"{prefix}/{name}/gateways")
     assert response.status_code == 200
-    assert len(response.json()) == len(gateway)
+    assert len(response.json()) == len(gateways)
 
 
 @pytest.mark.parametrize("name",
