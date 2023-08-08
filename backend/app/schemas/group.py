@@ -17,7 +17,7 @@ class Group(SQLModel, table=True):
     # Relations
     things: List["Thing"] = Relationship(back_populates="groups", link_model=GroupThingLink)
     gateways: List["Gateway"] = Relationship(back_populates="groups", link_model=GroupGatewayLink)
-    # Groups should be a self relationship, but it is not trivial in SQLModel / SQLAlchemy
+    # Groups should be a self-relationship. Not trivial to implement in SQLModel/SQLAlchemy
     groups: Optional[str] = Field()
     location_name: Optional[str] = Field(foreign_key="location.name")
     #
