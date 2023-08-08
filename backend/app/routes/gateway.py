@@ -9,6 +9,7 @@ from app.repository import location as location_repo
 from app.schemas.gateway import Gateway
 from app.schemas.group import Group
 from app.schemas.sensor import Sensor
+from app.schemas.thing import Thing
 
 router = APIRouter(prefix="/gateways")
 
@@ -34,11 +35,12 @@ def post_gateway(gateway: Gateway,
             if not db_group:
                 raise HTTPException(status_code=404, detail="Group does not exist")
 
-    if gateway.thing_name:
-        db_thing = thing_repo.get_thing(thing_name=gateway.thing_name,
-                                        session=session)
-        if not db_thing:
-            raise HTTPException(status_code=404, detail="Thing does not exist")
+    if gateway.things:
+        for thing in gateway.things:
+            db_thing = thing_repo.get_thing(thing_name=thing.name,
+                                            session=session)
+            if not db_thing:
+                raise HTTPException(status_code=404, detail="Thing does not exist")
 
     if gateway.location_name:
         db_location = location_repo.get_location(location_name=gateway.location_name,
@@ -73,6 +75,14 @@ def get_gateway_groups(gateway_name: str,
     db_gateway = get_gateway(gateway_name=gateway_name, session=session)
 
     return db_gateway.groups
+
+
+@router.get("/{gateway_name}/things", response_model=List[Thing])
+def get_gateway_things(gateway_name: str,
+                       session: Session = Depends(get_session)):
+    db_gateway = get_gateway(gateway_name=gateway_name, session=session)
+
+    return db_gateway.things
 
 
 @router.delete("/{gateway_name}/", response_model=Gateway)

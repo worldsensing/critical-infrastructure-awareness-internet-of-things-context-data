@@ -20,11 +20,11 @@ def get_things(offset: int, limit: int, session: Session):
 def create_thing(thing: Thing, session: Session):
     db_thing = Thing(
         name=thing.name,
-        active=thing.active,
-        location_name=thing.location_name,
-        info=thing.info,
         groups=thing.groups,
-        gateway_name=thing.gateway_name,
+        gateways=thing.gateways,
+        location_name=thing.location_name,
+        active=thing.active,
+        info=thing.info,
         sampling_rate=thing.sampling_rate,
         lastConnectTime=thing.lastConnectTime,
         lastDisconnectTime=thing.lastDisconnectTime,

@@ -5,6 +5,8 @@ from sqlmodel import Field, SQLModel, Relationship
 from app.schemas.group import Group
 from app.schemas.group_gateway_link import GroupGatewayLink
 from app.schemas.sensor import Sensor
+from app.schemas.thing import Thing
+from app.schemas.thing_gateway_link import ThingGatewayLink
 
 
 class Gateway(SQLModel, table=True):
@@ -24,8 +26,7 @@ class Gateway(SQLModel, table=True):
 
     # Relation
     groups: List["Group"] = Relationship(back_populates="gateways", link_model=GroupGatewayLink)
-    # TODO List Relation instead of FKs
-    thing_name: Optional[str] = Field(foreign_key="thing.name")
+    things: List["Thing"] = Relationship(back_populates="gateways", link_model=ThingGatewayLink)
     sensors: List["Sensor"] = Relationship()
     location_name: Optional[str] = Field(foreign_key="location.name")
     #

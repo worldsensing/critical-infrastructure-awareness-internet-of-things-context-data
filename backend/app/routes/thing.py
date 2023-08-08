@@ -6,6 +6,7 @@ from sqlmodel import Session
 from app.database import get_session
 from app.repository import location as location_repo, thing as thing_repo, gateway as gateway_repo, \
     group as group_repo
+from app.schemas.gateway import Gateway
 from app.schemas.group import Group
 from app.schemas.sensor import Sensor
 from app.schemas.thing import Thing
@@ -34,11 +35,12 @@ def post_thing(thing: Thing,
             if not db_group:
                 raise HTTPException(status_code=404, detail="Group does not exist")
 
-    if thing.gateway_name:
-        db_gateway = gateway_repo.get_gateway(gateway_name=thing.gateway_name,
-                                              session=session)
-        if not db_gateway:
-            raise HTTPException(status_code=404, detail="Gateway does not exist")
+    if thing.gateways:
+        for gateway in thing.gateways:
+            db_gateway = gateway_repo.get_gateway(gateway_name=gateway.name,
+                                                  session=session)
+            if not db_gateway:
+                raise HTTPException(status_code=404, detail="Gateway does not exist")
 
     # TODO Check sensors?
 
@@ -75,6 +77,14 @@ def get_thing_groups(thing_name: str,
     db_thing = get_thing(thing_name=thing_name, session=session)
 
     return db_thing.groups
+
+
+@router.get("/{thing_name}/gateways", response_model=List[Gateway])
+def get_thing_gateways(thing_name: str,
+                       session: Session = Depends(get_session)):
+    db_thing = get_thing(thing_name=thing_name, session=session)
+
+    return db_thing.gateways
 
 
 @router.delete("/{thing_name}/", response_model=Thing)
