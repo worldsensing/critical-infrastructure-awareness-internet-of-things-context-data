@@ -7,6 +7,8 @@ from app.database import get_session
 from app.repository import gateway as gateway_repo, group as group_repo, thing as thing_repo
 from app.repository import location as location_repo
 from app.schemas.gateway import Gateway
+from app.schemas.group import Group
+from app.schemas.sensor import Sensor
 
 router = APIRouter(prefix="/gateways")
 
@@ -25,11 +27,12 @@ def post_gateway(gateway: Gateway,
     if db_gateway:
         raise HTTPException(status_code=400, detail="Gateway name already registered")
 
-    if gateway.group_name:
-        db_group = group_repo.get_group(group_name=gateway.group_name,
-                                        session=session)
-        if not db_group:
-            raise HTTPException(status_code=404, detail="Group does not exist")
+    if gateway.groups:
+        for group in gateway.groups:
+            db_group = group_repo.get_group(group_name=group.name,
+                                            session=session)
+            if not db_group:
+                raise HTTPException(status_code=404, detail="Group does not exist")
 
     if gateway.thing_name:
         db_thing = thing_repo.get_thing(thing_name=gateway.thing_name,
@@ -56,12 +59,26 @@ def get_gateway(gateway_name: str,
     return db_gateway
 
 
+@router.get("/{gateway_name}/sensors", response_model=List[Sensor])
+def get_gateway_sensors(gateway_name: str,
+                        session: Session = Depends(get_session)):
+    db_gateway = get_gateway(gateway_name=gateway_name, session=session)
+
+    return db_gateway.sensors
+
+
+@router.get("/{gateway_name}/groups", response_model=List[Group])
+def get_gateway_groups(gateway_name: str,
+                       session: Session = Depends(get_session)):
+    db_gateway = get_gateway(gateway_name=gateway_name, session=session)
+
+    return db_gateway.groups
+
+
 @router.delete("/{gateway_name}/", response_model=Gateway)
 def delete_gateway(gateway_name: str,
                    session: Session = Depends(get_session)):
-    db_gateway = gateway_repo.get_gateway(gateway_name=gateway_name, session=session)
-    if not db_gateway:
-        raise HTTPException(status_code=400, detail="Gateway name does not exist.")
+    get_gateway(gateway_name=gateway_name, session=session)
 
     db_gateway = gateway_repo.delete_gateway(gateway_name=gateway_name, session=session)
     return db_gateway

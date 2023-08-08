@@ -18,8 +18,8 @@ def create_group(group: Group, session: Session):
     db_group = Group(
         name=group.name,
         location_name=group.location_name,
-        thing_name=group.thing_name,
-        gateway_name=group.gateway_name,
+        things=group.things,
+        gateways=group.gateways,
     )
     session.add(db_group)
     session.commit()

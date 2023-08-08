@@ -21,9 +21,9 @@ def create_gateway(gateway: Gateway, session: Session):
     db_gateway = Gateway(
         name=gateway.name,
         active=gateway.active,
-        location=gateway.location_name,
+        location_name=gateway.location_name,
         info=gateway.info,
-        group_name=gateway.group_name,
+        group_name=gateway.groups,
         thing_name=gateway.thing_name,
         lastConnectTime=gateway.lastConnectTime,
         lastDisconnectTime=gateway.lastDisconnectTime,

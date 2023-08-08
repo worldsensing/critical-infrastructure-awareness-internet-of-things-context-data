@@ -18,5 +18,4 @@ class EventRule(SQLModel, table=True):
     event_rule_type_name: str = Field(nullable=False, foreign_key="eventruletype.name")
     sensor_1_name: str = Field(nullable=False, foreign_key="sensor.name")
     sensor_2_name: Optional[str] = Field(foreign_key="sensor.name")
-    # TODO Add relation to ConditionRule?
     #

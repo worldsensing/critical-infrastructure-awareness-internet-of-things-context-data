@@ -35,6 +35,8 @@ def post_actuation(actuation: Actuation,
     if not db_actuatable_property:
         raise HTTPException(status_code=404, detail="ActuatableProperty does not exist")
 
+    # TODO Add checks for observations
+
     return actuation_repo.create_actuation(
         actuation=actuation, session=session)
 

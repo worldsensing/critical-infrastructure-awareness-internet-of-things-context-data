@@ -23,7 +23,7 @@ def create_thing(thing: Thing, session: Session):
         active=thing.active,
         location_name=thing.location_name,
         info=thing.info,
-        group_name=thing.group_name,
+        groups=thing.groups,
         gateway_name=thing.gateway_name,
         sampling_rate=thing.sampling_rate,
         lastConnectTime=thing.lastConnectTime,

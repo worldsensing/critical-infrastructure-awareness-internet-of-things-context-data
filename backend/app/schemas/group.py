@@ -1,6 +1,13 @@
-from typing import Optional
+from typing import Optional, List, TYPE_CHECKING
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
+
+from app.schemas.group_gateway_link import GroupGatewayLink
+from app.schemas.group_thing_link import GroupThingLink
+
+if TYPE_CHECKING:
+    from app.schemas.gateway import Gateway
+    from app.schemas.thing import Thing
 
 
 class Group(SQLModel, table=True):
@@ -8,9 +15,8 @@ class Group(SQLModel, table=True):
     name: str = Field(index=True, unique=True, nullable=False)
 
     # Relations
-    # TODO Check relationship instead of FKs
-    thing_name: Optional[str] = Field(foreign_key="thing.name")
-    gateway_name: Optional[str] = Field(foreign_key="gateway.name")
+    things: List["Thing"] = Relationship(back_populates="groups", link_model=GroupThingLink)
+    gateways: List["Gateway"] = Relationship(back_populates="groups", link_model=GroupGatewayLink)
     # TODO Add relation to other Groups
     location_name: Optional[str] = Field(foreign_key="location.name")
     #

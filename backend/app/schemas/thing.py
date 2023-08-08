@@ -3,6 +3,8 @@ from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 
 from app.schemas.actuator import Actuator
+from app.schemas.group import Group
+from app.schemas.group_thing_link import GroupThingLink
 from app.schemas.sensor import Sensor
 
 
@@ -19,8 +21,7 @@ class Thing(SQLModel, table=True):
     inactivityAlarmTime: Optional[str] = Field()
 
     # Relations
-    # TODO List Relation instead of FKs
-    group_name: Optional[str] = Field(foreign_key="group.name")
+    groups: List["Group"] = Relationship(back_populates="things", link_model=GroupThingLink)
     # TODO List Relation instead of FKs
     gateway_name: Optional[str] = Field(foreign_key="gateway.name")
     sensors: List["Sensor"] = Relationship()
