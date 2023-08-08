@@ -5,7 +5,7 @@ from sqlmodel import Session
 
 from app.database import get_session
 from app.repository import group as group_repo
-from app.repository import location as location_repo
+from app.repository import location as location_repo, thing as thing_repo, gateway as gateway_repo
 from app.schemas.group import Group
 
 router = APIRouter(prefix="/groups")
@@ -25,18 +25,19 @@ def post_group(group: Group,
     if db_group:
         raise HTTPException(status_code=400, detail="Group name already registered")
 
-    # TODO Add checks for many-to-many
-    # if group.thing_name:
-    #    db_thing = thing_repo.get_thing(thing_name=group.thing_name,
-    #                                    session=session)
-    #    if not db_thing:
-    #        raise HTTPException(status_code=404, detail="Thing does not exist")
+    if group.things:
+        for thing in group.things:
+            db_thing = thing_repo.get_thing(thing_name=thing.name,
+                                            session=session)
+            if not db_thing:
+                raise HTTPException(status_code=404, detail="Thing does not exist")
 
-    # if group.gateway_name:
-    #    db_gateway = gateway_repo.get_gateway(gateway_name=group.gateway_name,
-    #                                          session=session)
-    #    if not db_gateway:
-    #        raise HTTPException(status_code=404, detail="Group does not exist")
+    if group.gateways:
+        for gateway in group.gateways:
+            db_gateway = gateway_repo.get_gateway(gateway_name=gateway.name,
+                                                  session=session)
+            if not db_gateway:
+                raise HTTPException(status_code=404, detail="Group does not exist")
 
     if group.location_name:
         db_location = location_repo.get_location(location_name=group.location_name,
