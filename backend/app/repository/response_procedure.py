@@ -22,7 +22,7 @@ def create_response_procedure(response_procedure: ResponseProcedure, session: Se
         name=response_procedure.name,
         context_aware_rule_name=response_procedure.context_aware_rule_name,
         procedure_type_name=response_procedure.procedure_type_name,
-        actuator_name=response_procedure.actuator_name
+        actuators=response_procedure.actuators
     )
     session.add(db_response_procedure)
     session.commit()
