@@ -4,8 +4,8 @@ from typing import List
 import requests
 
 from src import BASE_URL, API_SENSORS_ENDPOINT, API_SENSOR_OBSERVATIONS_ENDPOINT, \
-    API_ACTUATOR_ENDPOINT, API_ACTUATION_ENDPOINT, actuators, core, utils, \
-    API_PROCEDURE_TYPE_NAME_ENDPOINT
+    API_ACTUATOR_ENDPOINT, API_ACTUATION_ENDPOINT, API_PROCEDURE_TYPE_NAME_ENDPOINT
+from src import actuators, core, utils
 
 
 def check_event_rule(event_rule: dict) -> bool:
@@ -36,9 +36,60 @@ def check_event_rule(event_rule: dict) -> bool:
         triggered = sensor_1_data != value_2_data
 
     print(f"EventRule {er_type} and {er_comparation_type} Checked: "
-          f"ValueA is {sensor_1_data} and ValueB is {value_2_data}")
+          f"ValueA is {sensor_1_data} and ValueB is {value_2_data} -> Evaluates as {triggered}")
 
-    print(f"Result is: {triggered}")
+    return triggered
+
+
+def check_condition_rule(condition_rule: dict) -> bool:
+    comp_event_rule_1 = \
+        core.get_event_rules_from_event_rule_name(condition_rule["event_rule_1_name"]) \
+            if condition_rule["event_rule_1_name"] else None
+    comp_event_rule_2 = \
+        core.get_event_rules_from_event_rule_name(condition_rule["event_rule_2_name"]) \
+            if condition_rule["event_rule_2_name"] else None
+    comp_condition_rule_1 = condition_rule["condition_rule_1_name"]
+    comp_condition_rule_2 = condition_rule["condition_rule_2_name"]
+    comparation_type = condition_rule["condition_comparation_type"]
+
+    triggered = False
+    if comparation_type == "AND":
+        if comp_event_rule_1 and comp_event_rule_2:
+            comp_1_result = check_event_rule(comp_event_rule_1)
+            comp_2_result = check_event_rule(comp_event_rule_2)
+            triggered = comp_1_result and comp_2_result
+        else:
+            pass
+    elif comparation_type == "OR":
+        if comp_event_rule_1 and comp_event_rule_2:
+            comp_1_result = check_event_rule(comp_event_rule_1)
+            comp_2_result = check_event_rule(comp_event_rule_2)
+            triggered = comp_1_result or comp_2_result
+        else:
+            pass
+    elif comparation_type == "NAND":
+        if comp_event_rule_1 and comp_event_rule_2:
+            comp_1_result = check_event_rule(comp_event_rule_1)
+            comp_2_result = check_event_rule(comp_event_rule_2)
+            triggered = not (comp_1_result and comp_2_result)
+        else:
+            pass
+    elif comparation_type == "NOR":
+        if comp_event_rule_1 and comp_event_rule_2:
+            comp_1_result = check_event_rule(comp_event_rule_1)
+            comp_2_result = check_event_rule(comp_event_rule_2)
+            triggered = not (comp_1_result or comp_2_result)
+        else:
+            pass
+    elif comparation_type == "XOR":
+        if comp_event_rule_1 and comp_event_rule_2:
+            comp_1_result = check_event_rule(comp_event_rule_1)
+            comp_2_result = check_event_rule(comp_event_rule_2)
+            triggered = comp_1_result != comp_2_result
+        else:
+            pass
+
+    print(f"ConditionRule checked -> Evaluates as {triggered}")
 
     return triggered
 
@@ -73,6 +124,9 @@ def execute_response_procedures(response_procedures: List):
             actuators.send_email()
         elif procedure["procedure_type"] == "HTTP":
             actuators.send_http()
+        break
+    else:
+        print("ContextAwareRule without any ResponseProcedure")
 
 
 def execute_context_aware_rules():
@@ -80,19 +134,23 @@ def execute_context_aware_rules():
 
     for context_aware_rule in context_aware_rules:
         if context_aware_rule["executing"] is True:
-            ca_event_rules = core.get_event_rules_from_context_aware_rule(
-                context_aware_rule["name"])
             ca_condition_rules = core.get_condition_rules_from_context_aware_rule(
                 context_aware_rule["name"])
 
-            triggered = True
+            triggered = False
             # Simple Rule
             if not ca_condition_rules:
+                ca_event_rules = core.get_event_rules_from_context_aware_rule(
+                    context_aware_rule["name"])
                 triggered = check_event_rule(ca_event_rules[0])
             # Complex Rule
             else:
-                # TODO
-                pass
+                # All ConditionRules must evaluate as true
+                # an AND is applied to the union of the instances
+                for condition_rule in ca_condition_rules:
+                    triggered = check_condition_rule(condition_rule)
+                    if not triggered:
+                        break
 
             if triggered:
                 ca_response_procedures = core.get_response_procedures_from_context_aware_rule(
@@ -111,28 +169,3 @@ def get_sensor_observations(sensor_name):
     print(sensor_observations)
 
     return sensor_observations
-
-
-def do_actuation(context_aware_rule_name, observation_id, actuator_name):
-    print(f"Sending GET to obtain {actuator_name} Actuator...")
-    url = f"{BASE_URL}{API_ACTUATOR_ENDPOINT}{actuator_name}"
-    print(url)
-
-    r = requests.get(url)
-    actuator = json.loads(r.content)["data"]
-    print(actuator)
-
-    print(f"HERE IS BEING DONE THE ACTUATION")
-    actuators.send_email()  # TODO Make this dynamic, comparing if the actuator really does this
-
-    print(f"Sending POST to create actuation...")
-    url = f"{BASE_URL}{API_ACTUATION_ENDPOINT}"
-    print(url)
-
-    r = requests.post(url,
-                      data={"observation_id": {observation_id},
-                            "context_aware_rule_name": context_aware_rule_name})
-    actuation = json.loads(r.content)["data"]
-    print(actuation)
-
-    return True
