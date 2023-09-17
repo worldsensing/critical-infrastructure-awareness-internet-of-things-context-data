@@ -1,7 +1,12 @@
 import datetime
-from typing import Optional
+from typing import Optional, List, TYPE_CHECKING
 
-from sqlmodel import Column, DateTime, Field, SQLModel
+from sqlmodel import Column, DateTime, Field, SQLModel, Relationship
+
+from app.schemas.actuation_observation_link import ActuationObservationLink
+
+if TYPE_CHECKING:
+    from app.schemas.actuation import Actuation
 
 
 class Observation(SQLModel, table=True):
@@ -20,5 +25,6 @@ class Observation(SQLModel, table=True):
     # Relations
     observable_property_name: str = Field(nullable=False, foreign_key="observableproperty.name")
     sensor_name: str = Field(nullable=False, foreign_key="sensor.name")
-    # actuation_id: Optional[int] = Field(foreign_key="actuation.id")  # TODO Many-to-Many
+    actuations: List["Actuation"] = Relationship(back_populates="observations",
+                                                 link_model=ActuationObservationLink)
     #

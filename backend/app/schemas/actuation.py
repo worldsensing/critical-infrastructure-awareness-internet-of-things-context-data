@@ -1,7 +1,10 @@
 import datetime
-from typing import Optional
+from typing import Optional, List
 
-from sqlmodel import Column, DateTime, Field, SQLModel
+from sqlmodel import Column, DateTime, Field, SQLModel, Relationship
+
+from app.schemas.actuation_observation_link import ActuationObservationLink
+from app.schemas.observation import Observation
 
 
 class Actuation(SQLModel, table=True):
@@ -13,5 +16,6 @@ class Actuation(SQLModel, table=True):
     # Relations
     actuator_name: str = Field(nullable=False, foreign_key="actuator.name")
     actuatable_property_name: str = Field(nullable=False, foreign_key="actuatableproperty.name")
-    # observation_id: Optional[int] = Field(foreign_key="observation.id")  # TODO Many-to-Many
+    observations: List["Observation"] = Relationship(back_populates="actuations",
+                                                     link_model=ActuationObservationLink)
     #

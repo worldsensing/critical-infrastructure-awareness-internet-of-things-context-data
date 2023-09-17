@@ -60,6 +60,7 @@ def test_get_actuation_exist(client: TestClient, session: Session,
     assert response.status_code == 200
     assert response.json()["id"] == 1
     assert response.json()["time_start"] == time_start
+    assert response.json()["time_end"] is None
     assert response.json()["actuatable_property_name"] == actuatable_property_name
     assert response.json()["actuator_name"] == actuator_name
 
@@ -92,6 +93,7 @@ def test_create_actuation(client: TestClient, session: Session,
     assert response.status_code == 200
     assert response.json()["id"] == 1
     assert response.json()["time_start"] == time_start
+    assert response.json()["time_end"] is None
     assert response.json()["actuatable_property_name"] == actuatable_property_name
     assert response.json()["actuator_name"] == actuator_name
 

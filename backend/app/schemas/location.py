@@ -8,4 +8,4 @@ class Location(SQLModel, table=True):
     name: str = Field(index=True, unique=True, nullable=False)
 
     geo_feature: Optional[str]
-    geo_coordinates: Optional[str]  # TODO Convert to pair [ lat, lng ]
+    geo_coordinates: Optional[str]  # In format 'lat, lng', e.g. '41.234, 2.3333'

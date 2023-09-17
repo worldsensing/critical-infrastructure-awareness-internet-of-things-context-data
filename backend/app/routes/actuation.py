@@ -7,6 +7,7 @@ from app.database import get_session
 from app.repository import actuation as actuation_repo, actuator as actuator_repo, \
     actuatable_property as actuatable_property_repo
 from app.schemas.actuation import Actuation
+from app.schemas.observation import Observation
 
 router = APIRouter(prefix="/actuations")
 
@@ -34,6 +35,8 @@ def post_actuation(actuation: Actuation,
     if not db_actuatable_property:
         raise HTTPException(status_code=404, detail="ActuatableProperty does not exist")
 
+    # TODO Add checks for observations
+
     return actuation_repo.create_actuation(
         actuation=actuation, session=session)
 
@@ -46,6 +49,14 @@ def get_actuation(actuation_id: int,
         raise HTTPException(status_code=404, detail="Actuation not found")
 
     return db_actuation
+
+
+@router.get("/{actuation_id}/observations", response_model=List[Observation])
+def get_actuation_observations(actuation_id: int,
+                               session: Session = Depends(get_session)):
+    db_actuation = get_actuation(actuation_id, session)
+
+    return db_actuation.observations
 
 
 @router.delete("/{actuation_id}/", response_model=Actuation)

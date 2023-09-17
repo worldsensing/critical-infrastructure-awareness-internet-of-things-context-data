@@ -1,6 +1,8 @@
-from typing import Optional
+from typing import Optional, List
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
+
+from app.schemas.actuator import Actuator
 
 
 class ResponseProcedure(SQLModel, table=True):
@@ -10,8 +12,6 @@ class ResponseProcedure(SQLModel, table=True):
     # Relations
     # TODO This should be a list, now we assume is One-to-Many, should be Many-to-Many
     context_aware_rule_name: str = Field(nullable=False, foreign_key="contextawarerule.name")
-    # TODO Add FK, not working, foreign_key="proceduretype.name")
-    procedure_type_name: str = Field(nullable=False)
-    # TODO This should be a list
-    actuator_name: str = Field(nullable=False, foreign_key="actuator.name")
+    procedure_type_name: str = Field(nullable=False, foreign_key="proceduretype.name")
+    actuators: List["Actuator"] = Relationship()
     #

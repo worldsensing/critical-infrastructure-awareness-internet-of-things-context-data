@@ -4,7 +4,6 @@ from typing import Optional
 from sqlmodel import Column, Enum, Field, SQLModel
 
 
-# TODO This class is not reflected in the Ontology conceptual overview
 class ConditionRuleComparationTypeEnum(enum.Enum):
     AND = "AND"
     OR = "OR"
@@ -24,7 +23,7 @@ class ConditionRule(SQLModel, table=True):
         sa_column=Column(Enum(ConditionRuleComparationTypeEnum)))
     event_rule_1_name: Optional[str] = Field(foreign_key="eventrule.name")
     event_rule_2_name: Optional[str] = Field(foreign_key="eventrule.name")
-    # These checks have to be done in runtime
+    # These FK checks are done in runtime
     condition_rule_1_name: Optional[str]  # = Field(foreign_key="conditionrule.name")
     condition_rule_2_name: Optional[str]  # = Field(foreign_key="conditionrule.name")
     #
