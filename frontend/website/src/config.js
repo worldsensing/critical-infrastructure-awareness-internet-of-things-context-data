@@ -1,7 +1,8 @@
 console.log('Running in mode: ' + process.env.REACT_APP_MODE)
 
 const dev_url = "http://localhost"
-const prod_url = "http://34.122.80.205:8000" // EXTERNAL_URL
+const prod_url = "http://localhost:8000"
+//const prod_url = "http://34.122.80.205:8000" // EXTERNAL_URL
 
 const dev = {
   services: {
@@ -64,16 +65,56 @@ const dev = {
 
 const prod = {
   services: {
-    api_device: {
-      url_gateway: prod_url + '/api/gateways/',
-      url_node: prod_url + '/api/nodes/',
-      url_sensor: prod_url + '/api/sensors/'
+    api_actuatable_properties: {
+      url: prod_url + '/api/actuatable-properties/',
     },
-    api_device_type: {
-      url: prod_url + '/api/device-types/'
+    api_actuations: {
+      url: prod_url + '/api/actuations/'
     },
-    api_observation: {
+    api_actuators: {
+      url: prod_url + '/api/actuators/'
+    },
+    api_condition_rules: {
+      url: prod_url + '/api/condition-rules/'
+    },
+    api_context_aware_rules: {
+      url: prod_url + '/api/context-aware-rules/'
+    },
+    api_event_rules: {
+      url: prod_url + '/api/event-rules/'
+    },
+    api_event_rule_types: {
+      url: prod_url + '/api/event-rule-types/'
+    },
+    api_features_of_interest: {
+      url: prod_url + '/api/features-of-interest/'
+    },
+    api_gateways: {
+      url: prod_url + '/api/gateways/'
+    },
+    api_groups: {
+      url: prod_url + '/api/groups/'
+    },
+    api_locations: {
+      url: prod_url + '/api/locations/'
+    },
+    api_observable_properties: {
+      url: prod_url + '/api/observable-properties/'
+    },
+    api_observations: {
       url: prod_url + '/api/observations/'
+    },
+    api_response_procedures: {
+      url: prod_url + '/api/response-procedures/'
+    },
+    api_procedure_types: {
+      url: prod_url + '/api/procedure-types/'
+    },
+    api_sensors: {
+      url: prod_url + '/api/sensors/'
+    },
+    api_things: {
+      url: prod_url + '/api/things/'
     },
     api_graph: {
       url: prod_url + '/api/graph/'

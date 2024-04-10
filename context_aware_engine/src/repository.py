@@ -4,7 +4,8 @@ from typing import List
 import requests
 
 from src import BASE_URL, API_SENSORS_ENDPOINT, API_SENSOR_OBSERVATIONS_ENDPOINT, \
-    API_ACTUATOR_ENDPOINT, API_ACTUATION_ENDPOINT, API_PROCEDURE_TYPE_NAME_ENDPOINT
+    API_ACTUATOR_ENDPOINT, API_ACTUATION_ENDPOINT, API_PROCEDURE_TYPE_NAME_ENDPOINT, \
+    API_CONTEXT_AWARE_RULES_RESPONSE_PROCEDURES_ENDPOINT
 from src import actuators, core, utils
 
 
@@ -96,18 +97,20 @@ def check_condition_rule(condition_rule: dict) -> bool:
 
 def execute_response_procedures(response_procedures: List):
     for response_procedure in response_procedures:
-        actuator_name = response_procedure["actuator_name"]
-
-        url = f"{BASE_URL}{API_ACTUATOR_ENDPOINT}{actuator_name}"
-        print(f"Send GET to obtain Actuator {actuator_name}: {url}")
+        response_procedure_name = response_procedure['name']
+        print(f"Executing response procedure: {response_procedure_name}")
+        url = f"{BASE_URL}/{API_CONTEXT_AWARE_RULES_RESPONSE_PROCEDURES_ENDPOINT}/{response_procedure_name}/{API_ACTUATOR_ENDPOINT}"
+        print(f"Send GET to obtain Actuators: {url}")
         r = requests.get(url)
-        actuator = json.loads(r.content)
+        actuator = json.loads(r.content)[0]  # TODO Currently obtains the first Actuator
+        if not actuator:
+            return False
 
-        url = f"{BASE_URL}{API_ACTUATION_ENDPOINT}"
+        url = f"{BASE_URL}/{API_ACTUATION_ENDPOINT}/"
         print(f"Send POST to create Actuation: {url}")
         body = {
             "time_start": utils.get_current_datetime_str(),
-            "actuator_name": actuator_name,
+            "actuator_name": actuator["name"],
             "actuatable_property_name": actuator["actuatable_property_name"],
         }
         r = requests.post(url, json=body)
@@ -115,13 +118,15 @@ def execute_response_procedures(response_procedures: List):
         print(actuation)
 
         procedure_type = response_procedure['procedure_type_name']
-        url = f"{BASE_URL}{API_PROCEDURE_TYPE_NAME_ENDPOINT}{procedure_type}"
+        url = f"{BASE_URL}/{API_PROCEDURE_TYPE_NAME_ENDPOINT}/{procedure_type}/"
         print(f"Send GET to obtain ProcedureType {procedure_type}: {url}")
         r = requests.get(url)
         procedure = json.loads(r.content)
 
         if procedure["procedure_type"] == "EMAIL":
-            actuators.send_email()
+            message = (f"The ContextAwareRule '{response_procedure['context_aware_rule_name']}' has raised a warning. "
+                       f"The Actuator '{actuator['name']}' has been triggered at '{body['time_start']}'.")
+            actuators.send_email(recipient=actuator["info"], message=message)
         elif procedure["procedure_type"] == "HTTP":
             actuators.send_http()
         break

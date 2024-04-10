@@ -73,6 +73,7 @@ services:
     volumes:
       - ./frontend/grafana/ENV/grafana.ini:/etc/grafana/grafana.ini
     depends_on:
+      - kong
       - postgres
     networks:
       - kong-ext-net

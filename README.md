@@ -4,7 +4,8 @@ Main repository for an article submitted.
 
 In each folder, there is a README.md with more details.
 
-To run the server, execute the `start.sh` script. To run the: `context_aware_engine`, `lora_client`,
+To run the server, execute the `start.sh` script.  
+To run the: `context_aware_engine`, `lora_client`,
 or `raspberry_pi_client`, each folder has to be run in a Python standalone instance.
 
 ## Requirements
