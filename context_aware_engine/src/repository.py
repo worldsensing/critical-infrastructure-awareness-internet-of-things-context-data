@@ -18,6 +18,8 @@ def check_event_rule(event_rule: dict) -> bool:
 
     sensor_1_data = core.get_last_observation_from_sensor_name(er_value_type,
                                                                event_rule["sensor_1_name"])
+    if not sensor_1_data:
+        return False
     value_2_data = None
 
     if er_type == "SENSOR_CONSTANT":

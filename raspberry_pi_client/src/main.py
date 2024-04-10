@@ -35,7 +35,7 @@ if __name__ == "__main__":
     if SENSOR_CONFIGURED == "TILT_B_INCL":
         read_sensor_tilt()
 
-        schedule.every(2).seconds.do(read_sensor_tilt)
+        schedule.every(3).seconds.do(read_sensor_tilt)
 
     print("Setup Scheduler...")
     t = Thread(target=run_schedule)
